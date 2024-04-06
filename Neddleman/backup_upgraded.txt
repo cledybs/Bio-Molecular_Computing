@@ -1,0 +1,158 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <stack>
+#include <algorithm>
+#include <fstream>
+
+using namespace std;
+
+vector<stack<char>> singleA(1), singleB(1);
+
+std::ofstream file1("point_mat.txt");
+std::ofstream coords_file("path_coor.txt");
+
+struct Node {
+    Node(int dato) : value(dato) {
+        path.push_back(nullptr);
+        path.push_back(nullptr);
+        path.push_back(nullptr);
+    }
+    int value;
+    vector<Node *> path;
+};
+
+void Print_Mat(const vector<vector<Node>> &mat) {
+    int n = mat.size();
+    int m = mat[0].size();
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < m; ++j) {
+            cout << mat[i][j].value << "\t";
+        }
+        cout << endl;
+    }
+}
+
+void All_Alignments(Node* node, string s, string t, int it, int jt) {
+    int num = 0;
+    stack<char> tmpA = singleA[singleA.size()-1];
+    stack<char> tmpB = singleB[singleB.size()-1];
+
+    if(singleA.size() == 1) coords_file << to_string(it) + " " + to_string(jt) + "\n";
+    else coords_file.close();
+
+    if(node->path[0] != nullptr){
+        singleA[singleA.size()-1].push(s[it]);
+        singleB[singleB.size()-1].push(t[jt]);
+        All_Alignments(node->path[0], s, t, it - 1, jt - 1);
+        num++;
+    }
+    if(node->path[1] != nullptr){
+        if(num){
+            singleA.push_back(tmpA);
+            singleB.push_back(tmpB);
+        }
+        singleA[singleA.size()-1].push(s[it]);
+        singleB[singleB.size()-1].push('-');
+        All_Alignments(node->path[1], s, t, it - 1, jt);
+        num++;
+    }
+    if(node->path[2] != nullptr){
+        if(num){
+            singleA.push_back(tmpA);
+            singleB.push_back(tmpB);
+        }
+        singleA[singleA.size()-1].push('-');
+        singleB[singleB.size()-1].push(t[jt]);
+        All_Alignments(node->path[2], s, t, it, jt - 1);
+    }
+}
+
+void Neddleman_Wunch(string s, string t)    {
+    s = "-" + s;
+    t = "-" + t;
+    int n = s.length();
+    int m = t.length();
+
+    vector<vector<Node>> mat(n, vector<Node>(m, Node(0)));
+
+    for (int j = 0, val = 0; j < m; ++j, val -= 2) {
+        mat[0][j].value = val;
+        if(j) mat[0][j].path[2] = &mat[0][j - 1];
+    }
+
+    for (int i = 0, val = 0; i < n; ++i, val -= 2) {
+        mat[i][0].value = val;
+        if(i) mat[i][0].path[1] = &mat[i - 1][0];
+    }
+
+    string point_row;
+
+    for (int i = 1; i < n; ++i) {
+        point_row = "";
+        for (int j = 1; j < m; ++j) {
+            int score = (s[i] == t[j]) ? 1 : -1;
+
+            if (score == 1) point_row += ".";
+            else point_row += "-";
+
+            mat[i][j].value = max(mat[i - 1][j - 1].value + score,
+                                  max(mat[i - 1][j].value - 2, mat[i][j - 1].value - 2));
+
+            if (mat[i - 1][j - 1].value + score == mat[i][j].value)
+                mat[i][j].path[0] = &mat[i - 1][j - 1];
+            if (mat[i - 1][j].value - 2 == mat[i][j].value)
+                mat[i][j].path[1] = &mat[i - 1][j];
+            if (mat[i][j - 1].value - 2 == mat[i][j].value)
+                mat[i][j].path[2] = &mat[i][j - 1];
+        }
+        point_row += '\n';
+        file1 << point_row;
+    }
+
+    file1.close();
+
+    cout << "--- FINAL MATRIX ---" << endl;
+    Print_Mat(mat);
+
+    /*cout << "--- CHILDREN MATRIX ---" << endl;
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < m; ++j) {
+            for (Node* child : mat[i][j].path)
+                if(child != nullptr) cout << child->value << ' ';
+            cout << '\t';
+        }
+        cout << endl;
+    }*/
+
+    cout << "--- SCORE ---" << endl;
+    cout << mat[n-1][m-1].value << endl;
+
+    cout << "--- ALIGNMENTS ---" << endl;
+    All_Alignments(&mat[n - 1][m - 1], s, t, n - 1, m - 1);
+
+    for(int i = 0; i < singleA.size(); ++i) {
+        while(!singleA[i].empty()){
+            cout << singleA[i].top() << ' ';
+            singleA[i].pop();
+        }
+        cout << endl;
+        while(!singleB[i].empty()){
+            cout << singleB[i].top() << ' ';
+            singleB[i].pop();
+        }
+        cout << endl << endl;
+    }
+}
+
+int main() {
+    string t, s;
+    cout << "--- INPUT ---" << endl;
+    cout << "String A : "; cin >> s;
+    cout << "String B : "; cin >> t;
+
+    Neddleman_Wunch(s, t);
+
+    return 0;
+}
+

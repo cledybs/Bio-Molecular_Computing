@@ -1,0 +1,22 @@
+AAAC
+-AGC
+
+AAAC
+A-GC
+
+AAAC
+AG-C
+
+
+
+TEST(4) VS TEST(3)
+
+Score -1
+
+Time Neddleman_Wunch 0.000704
+Time Find_Optimal_Alignment 0.000349
+Time All_Alignments 0.000018
+
+AAAC
+AGC
+
