@@ -55,12 +55,6 @@ build CMakeFiles/Neddleman.dir/main.cpp.obj: CXX_COMPILER__Neddleman_Debug C$:/U
   OBJECT_DIR = CMakeFiles\Neddleman.dir
   OBJECT_FILE_DIR = CMakeFiles\Neddleman.dir
 
-build CMakeFiles/Neddleman.dir/neddleman.cpp.obj: CXX_COMPILER__Neddleman_Debug C$:/Users/cledy/CLionProjects/Neddleman/neddleman.cpp || cmake_object_order_depends_target_Neddleman
-  DEP_FILE = CMakeFiles\Neddleman.dir\neddleman.cpp.obj.d
-  FLAGS = -g -fdiagnostics-color=always
-  OBJECT_DIR = CMakeFiles\Neddleman.dir
-  OBJECT_FILE_DIR = CMakeFiles\Neddleman.dir
-
 
 # =============================================================================
 # Link build statements for EXECUTABLE target Neddleman
@@ -69,7 +63,7 @@ build CMakeFiles/Neddleman.dir/neddleman.cpp.obj: CXX_COMPILER__Neddleman_Debug 
 #############################################
 # Link the executable Neddleman.exe
 
-build Neddleman.exe: CXX_EXECUTABLE_LINKER__Neddleman_Debug CMakeFiles/Neddleman.dir/main.cpp.obj CMakeFiles/Neddleman.dir/neddleman.cpp.obj
+build Neddleman.exe: CXX_EXECUTABLE_LINKER__Neddleman_Debug CMakeFiles/Neddleman.dir/main.cpp.obj
   FLAGS = -g
   LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   OBJECT_DIR = CMakeFiles\Neddleman.dir
