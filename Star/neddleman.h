@@ -18,12 +18,12 @@ using namespace std;
 #define NUC1 "FORWARD_STRINGS"
 #define NUC2 "REVERSE_STRINGS"
 
-//ofstream dot_file("MULTIPLE_dotmat.txt");
-//ofstream coords_file("MULTIPLE_coords.txt");
-ofstream align_file("MULTIPLE_alignments.txt");
+//ofstream dot_file("dotmat.txt");
+//ofstream coords_file("coords.txt");
+ofstream align_file("alignments.txt");
 
 struct Node {
-    Node(int dato) : value(dato) {
+    Node(int dato = 0) : value(dato) {
         path.push_back(nullptr);
         path.push_back(nullptr);
         path.push_back(nullptr);
@@ -33,16 +33,17 @@ struct Node {
 };
 
 class Neddleman {
+public:
     Neddleman(string s, string t);
     ~Neddleman();
     void Print_Mat();
     void All_Alignments(Node* node, int it, int jt);
     void Find_Optimal_Alignment(Node* node, int it, int jt);
-    void Neddleman_Wunch(string &s, string &t);
+    void Neddleman_Wunch_Algorithm();
 
     string singleA, singleB;
     unsigned int count_paths = 0;
-    vector<vector<Node>> mat;
+    Node **mat;
     string s, t;
     int n, m;
 };
@@ -52,12 +53,19 @@ Neddleman::Neddleman(string s, string t) {
     this->t = t;
     n = s.length() + 1;
     m = t.length() + 1;
-    mat.resize(n, vector<Node>(m, Node(0)));
+    mat = new Node*[n];
+    for (int i = 0; i < n; ++i)
+        mat[i] = new Node[m];
+
+}
+
+Neddleman::~Neddleman() {
+    for (int i = 0; i < n; ++i)
+        delete[] mat[i];
+    delete[] mat;
 }
 
 void Neddleman::Print_Mat() {
-    int n = mat.size();
-    int m = mat[0].size();
     for (int i = 0; i < n; ++i) {
         for (int j = 0; j < m; ++j) {
             cout << mat[i][j].value << "\t";
@@ -110,7 +118,7 @@ void Neddleman::Find_Optimal_Alignment(Node* node, int it, int jt) {
     else if(node->path[2] != nullptr) Find_Optimal_Alignment(node->path[2], it, jt - 1);
 }
 
-void Neddleman::Neddleman_Wunch(string &s, string &t)    {
+void Neddleman::Neddleman_Wunch_Algorithm()    {
     s = "-" + s;
     t = "-" + t;
 

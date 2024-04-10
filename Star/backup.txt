@@ -1,0 +1,109 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
+#include <fstream>
+#include <numeric>
+#include "neddleman.h"
+
+#define NUM_NUC 6
+#define FILENAME1 "FORWARD_STRINGS"
+#define FILENAME2 "REVERSE_STRINGS"
+
+using namespace std;
+
+void Input_Multiple_Strings(vector<string> &s, vector<string> &t) {
+    string txt = ".txt";
+    ifstream nuc1(FILENAME1 + txt);
+    ifstream nuc2(FILENAME2 + txt);
+
+    for(int i = 0; i < NUM_NUC; ++i) {
+        getline(nuc1, s[i]);
+        getline(nuc2, t[i]);
+    }
+
+    nuc1.close();
+    nuc2.close();
+}
+
+void Find_Alignments(vector<string> &m, int it_max) {
+    ifstream file("alignments.txt");
+
+    string a;
+    int comp = 0;
+    for(int i = 0; i < it_max; ++i) {
+        for(int j = 0; j < NUM_NUC - i - 1; ++j) {
+            getline(file, a);
+            if(i == 0 && j == 0) m.push_back(a);
+            getline(file, a);
+            if(j + it_max == NUM_NUC - i - 1) m.push_back(a);
+            getline(file, a);
+            comp++;
+        }
+    }
+
+    for(int j = 0; j < NUM_NUC - it_max - 1; ++j) {
+        getline(file, a);
+        if(it_max == 0 && j == 0) m.push_back(a);
+        getline(file, a);
+        m.push_back(a);
+        getline(file, a);
+        comp++;
+    }
+
+}
+
+int main() {
+    vector<string> s(NUM_NUC), t(NUM_NUC);
+    vector<vector<int>> scores(NUM_NUC, vector<int>(NUM_NUC, 0));
+
+    Input_Multiple_Strings(s, t);
+
+    for(int i = 0; i < NUM_NUC; ++i) {
+        for (int j = i + 1; j < NUM_NUC; ++j) {
+            Neddleman nd(s[i], s[j]);
+            nd.Neddleman_Wunch_Algorithm();
+            nd.All_Alignments(&nd.mat[nd.n - 1][nd.m - 1], nd.n - 1, nd.m - 1);
+            scores[i][j] = nd.mat[nd.n - 1][nd.m - 1].value;
+            scores[j][i] = scores[i][j];
+        }
+    }
+    align_file.close();
+
+    for(int i = 0; i < NUM_NUC; ++i) {
+        for(int j = 0; j < NUM_NUC; ++j) {
+            cout << scores[i][j] << '\t';
+        }
+        cout << endl;
+    }
+
+
+    vector<int> final_scores;
+    int maximo = INT_MIN;
+    int it_max = -1;
+    for(int i = 0; i < NUM_NUC; ++i) {
+        final_scores.push_back(accumulate(scores[i].begin(), scores[i].end(), 0));
+        if(final_scores[i] > maximo) {
+            it_max = i;
+            maximo = final_scores[i];
+        }
+    }
+
+    cout << it_max << endl;
+    cout << final_scores[it_max] << endl;
+
+    vector<string> m;
+    Find_Alignments(m, it_max);
+
+    int max_size = 0;
+    for(auto &v : m)
+        if (v.length() > max_size) max_size = v.length();
+
+    for(auto &v : m) {
+        if(v.size() < max_size) v.resize(max_size, '-');
+        cout << v << endl;
+    }
+
+
+    return 0;
+}
